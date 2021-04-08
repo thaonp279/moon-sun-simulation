@@ -20,6 +20,10 @@ Simulate the position of the sun and the moon in the sky by accessing your curre
 ### Moon phase details
 <img width="500" align="right" alt="moon-phase" src="https://user-images.githubusercontent.com/77321721/113996727-a3b9d480-9881-11eb-86be-6e969b67facb.gif">
 
+
+
+
+
 - upclose view of the moon shape.
 - moon illumination: the percentage of the moon visible in the sky.
 - the time of moonrise, moonset everyday.
