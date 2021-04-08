@@ -260,37 +260,6 @@
         }
     }
 
-    // function drawStars(time) {
-    //     var hr = new Date(time).getHours();
-
-    //     if (hr === 12) {
-    //         console.log(hr);
-    //         //stars 
-    //         stars
-    //             .selectAll('circle')
-    //             .remove()
-
-    //         starsCoord = [];
-    //         for (i=0; i< 200; i++) {
-    //             let cx = Math.random() * w;
-    //             let cy = Math.random() * h*0.8;
-    //             starsCoord.push({cx, cy})
-    //         }
-    //         stars
-    //             .selectAll('circle')
-    //             .data(starsCoord)
-    //             .enter()
-    //             .append('circle')
-    //             .attr('r', 1)
-    //             .attr('cx', d => {
-    //                 console.log(d);
-    //                 return d.cx})
-    //             .attr('cy', d => d.cy)
-    //             .attr('fill', 'white')
-
-    //     }
-    // }
-
     //------------------------------------BIG MOON FUNCTIONS--------------------------------------------//
     //---update details about moon fraction, rise, set, full, new moon
     function updateMoonDetails(time) {
