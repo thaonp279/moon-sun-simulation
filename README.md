@@ -11,12 +11,11 @@ Simulate the position of the sun and the moon in the sky by accessing your curre
 - update the moon shape depending on the day.
 - simulate the stars at night.
 - option to fast forward time.
-
-
-
-
-
-
+|
+|
+|
+|
+|
 ### Moon phase details
 <img width="500" align="right" alt="moon-phase" src="https://user-images.githubusercontent.com/77321721/113996727-a3b9d480-9881-11eb-86be-6e969b67facb.gif">
 
