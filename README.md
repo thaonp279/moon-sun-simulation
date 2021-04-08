@@ -5,7 +5,7 @@ Simulate the position of the sun and the moon in the sky by accessing your curre
 
 ### Sky view
 
-<img width="600" alt="sky-view" src="https://user-images.githubusercontent.com/77321721/113996633-8d137d80-9881-11eb-963c-416197555825.gif">
+<img width="500" align="right" alt="sky-view" src="https://user-images.githubusercontent.com/77321721/113996633-8d137d80-9881-11eb-963c-416197555825.gif">
 
 - change the color of the sky depending on the local time and local sunrise, sunset.
 - update the moon shape depending on the day.
