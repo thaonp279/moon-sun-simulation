@@ -6,9 +6,9 @@
 
     //locate user
     var loc;
-    // loc = await new Promise(resolve => navigator.geolocation.getCurrentPosition((res) => {
-    //     resolve(res)
-    // }));
+    loc = await new Promise(resolve => navigator.geolocation.getCurrentPosition((res) => {
+        resolve(res)
+    }));
 
     //time & place - default: indochina
     var lat = loc? loc.coords.latitude: 10.803243;
