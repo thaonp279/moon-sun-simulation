@@ -1,28 +1,32 @@
 
+import * as d3 from "d3";
+
 (async () => {
 
     //------------------------------------INITIALIZATION--------------------------------------------//
-    var timerStartAt = new Date(), time0 = new Date(new Date().setHours(0,0,0,0)), startFastForward;
+    const timerStartAt = new Date();
+    const time0 = new Date(new Date().setHours(0,0,0,0));
+    var startFastForward: Date;
 
     //locate user
-    var loc;
-    loc = await new Promise(resolve => navigator.geolocation.getCurrentPosition((res) => {
-        resolve(res)
-    }));
+    const loc: GeolocationPosition = await new Promise((resolve, reject) => navigator.geolocation.getCurrentPosition(resolve, reject));
 
     //time & place - default: indochina
-    var lat = loc? loc.coords.latitude: 10.803243;
-    var lng = loc? loc.coords.longitude: 106.727914;
+    const lat = loc? loc.coords.latitude: 10.803243;
+    const lng = loc? loc.coords.longitude: 106.727914;
 
 
-    var realReq, fastReq;
+    var realReq: number, fastReq: number;
 
     //initial render
     playReal();
 
     //events initialization
-    document.getElementById('fast').addEventListener('click', playFastForward);
-    document.getElementById('real').addEventListener('click', playReal);
+    const fastButton = document.getElementById('fast');
+    const normalButton = document.getElementById('real');
+
+    fastButton?.addEventListener('click', playFastForward);
+    normalButton?.addEventListener('click', playReal);
 
     //------------------------------------ANIMATION REQUESTS--------------------------------------------//
     //---call animation requests
@@ -57,20 +61,21 @@
     }
 
     //---animation loop functions
-    function realSpeed(timeStamp){
-        var time = Date.parse(timerStartAt) + timeStamp;
+    function realSpeed(timeStamp: DOMHighResTimeStamp){
+        const time = timerStartAt.getTime() + timeStamp;
         animate(time);
         realReq = window.requestAnimationFrame(realSpeed);
     }
 
-    function fastForward(timeStamp){
-        let time = (Date.parse(timerStartAt) - Date.parse(startFastForward) + timeStamp)*5000 + Date.parse(time0);
+    function fastForward(timeStamp: DOMHighResTimeStamp){
+        const frameTimestep = 5000;
+        const time = (timerStartAt.getTime() - startFastForward.getTime() + timeStamp)*frameTimestep + time0.getTime();
         animate(time);
         fastReq = window.requestAnimationFrame(fastForward);
     }
 
     //---all functions for animation in horizon view, moon view and planet view
-    var animate = (time) => {
+    var animate = (time: number) => {
         animateSunMoon(time);
         displayTime(time);
         colorHorizon(time);
@@ -82,18 +87,19 @@
 
     //------------------------------------HORIZON FUNCTIONS--------------------------------------------//
     //---update time on screen
-    function displayTime(time) {
+    function displayTime(time: number) {
         if (!isNaN(time)) {
-            time = new Date(time);
+            const dateTime = new Date(time);
+            const place = dateTime.toString().match(/\((.+)\)/);
+            (document.getElementById('time') as HTMLElement).textContent = dateTime.toLocaleTimeString();
+            (document.getElementById('date') as HTMLElement).textContent = dateTime.toDateString().split(' ').slice(1, 3).join(' ');
+            (document.getElementById('place') as HTMLElement).textContent = place? place[1]: '';
         }
-        document.getElementById('time').textContent = time.toLocaleTimeString();
-        document.getElementById('date').textContent = time.toDateString().split(' ').slice(1, 3).join(' ');
-        document.getElementById('place').textContent = time.toString().match(/\((.+)\)/)[1];
     }
     //---simulate sun moon across screen
-    function animateSunMoon(time){
-        var sunCoords = getPosition(time, 'sun');
-        var moonCoords = getPosition(time, 'moon');
+    function animateSunMoon(time: number){
+        const sunCoords = getPosition(time, 'sun');
+        const moonCoords = getPosition(time, 'moon');
         
         moon
             .attr('transform', 'translate('+moonCoords.x+','+moonCoords.y+')');
@@ -103,7 +109,7 @@
             .attr('cy', sunCoords.y)
     }
 
-    function getPosition(now, object){
+    function getPosition(now: number, object: string){
         if (isNaN(now)) {
             now = Date.parse(now);
         }

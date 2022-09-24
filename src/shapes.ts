@@ -252,7 +252,3 @@ var visLine = tinyMoonG
 .attr('y2', tinyMoonR)
 .attr('stroke', 'black')
 .attr('stroke-dasharray', '2,1')
-
-
-
-
