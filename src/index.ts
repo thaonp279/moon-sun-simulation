@@ -86,8 +86,8 @@ import * as d3 from "d3";
     }
 
     //------------------------------------HORIZON FUNCTIONS--------------------------------------------//
-    //---update time on screen
-    function displayTime(time: number) {
+    function displayTime(time: number): void {
+        /** update time on screen */
         if (!isNaN(time)) {
             const dateTime = new Date(time);
             const place = dateTime.toString().match(/\((.+)\)/);
@@ -96,8 +96,8 @@ import * as d3 from "d3";
             (document.getElementById('place') as HTMLElement).textContent = place? place[1]: '';
         }
     }
-    //---simulate sun moon across screen
-    function animateSunMoon(time: number){
+    function animateSunMoon(time: number): void {
+        /** simulate sun moon across screen */
         const sunCoords = getPosition(time, 'sun');
         const moonCoords = getPosition(time, 'moon');
         
@@ -109,19 +109,22 @@ import * as d3 from "d3";
             .attr('cy', sunCoords.y)
     }
 
-    function getPosition(now: number, object: string){
+    
+    function getPosition(now: number, object: 'moon'|'sun'): [number, number] {
+        /*
         if (isNaN(now)) {
             now = Date.parse(now);
         }
+        */
 
-        var phases = findRiseSetPhase(now, object);
+        const phases = findRiseSetPhase(now, object);
         
-        //ellipse dimention:
-        var paddingX = hG, paddingY = hG;
-        var minor = h - paddingY, major = (w - 2*paddingX)/2;
+        //ellipse dimension:
+        const paddingX = hG, paddingY = hG;
+        const minor = h - paddingY, major = (w - 2*paddingX)/2;
 
         //calculate radian
-        var start = phases[0].time, end = phases[2].time;
+        const start = phases[0].time, end = phases[2].time;
         var radian = Math.PI * (now - start)/(end - start);
         //move object below horizon after sunset/moonset, invert by adding 1 pi
         if (phases[0].type === 'set') radian += Math.PI;
@@ -130,10 +133,12 @@ import * as d3 from "d3";
         var x = paddingX + major - major * Math.cos(radian);
         var y = paddingY + minor - minor * Math.sin(radian);
 
-        return {x, y}
+        return [x, y]
     }
 
-    function findRiseSetPhase(now, object) {
+    interface 
+
+    function findRiseSetPhase(now: number, object: 'moon'|'sun') {
         var data = [{time: new Date(now), type: 'now'}];
         //SunCalc provides rise, set time in the current date. 
         //This finds rise, set time for current rise-set phase (possibly a day before or after)
