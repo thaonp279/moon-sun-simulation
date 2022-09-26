@@ -1,5 +1,5 @@
 # Moon Sun Simulation
-Simulate the position + shape of the sun and the moon in the sky by accessing your current location.\\
+Simulate the position + shape of the sun and the moon in the sky by accessing your current location.  
 See it live: https://moon-sun.netlify.app/
 
 <img width="1050" alt="overview" src="https://user-images.githubusercontent.com/77321721/113990516-bb8e5a00-987b-11eb-854a-e9744148f1ef.png">
