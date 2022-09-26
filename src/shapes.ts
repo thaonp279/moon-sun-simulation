@@ -227,7 +227,7 @@ earth
 //icon from freepik
 var lonelyMan = earthG
 .append('image')
-.attr('href', '/src/assets/dancing.svg')
+.attr('href', './assets/dancing.svg')
 .attr('width', lonelyManWH)
 .attr('height', lonelyManWH)
 .attr('x', -lonelyManWH/2)
