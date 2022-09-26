@@ -205,11 +205,11 @@ const milsecPerDay = 24*60*60*1000;
         var starsDomain = [lastNight, lastMidNight, nightEnd, night, midnight, nextNightEnd];
 
         //sky color
-        var topScale = d3.scaleTime()
+        var topScale = d3.scaleTime<string, string>()
         .domain(horizonDomain)
         .range(["#032881", "#032881","#ba8816", "#00d4ff", "#00d4ff", "#00d4ff", "#ba8816", "#032881", "#032881"])
 
-        var bottomScale = d3.scaleTime()
+        var bottomScale = d3.scaleTime<string, string>()
         .domain(horizonDomain)
         .range(["black", "black", "#ad3307", "#3662dd", "#3662dd", "#3662dd", "#ad3307", "black", "black"])
 
@@ -220,14 +220,14 @@ const milsecPerDay = 24*60*60*1000;
         .style('stop-color', bottomScale(dateTime));
 
         //ground color
-        var groundScale = d3.scaleTime()
+        var groundScale = d3.scaleTime<string, string>()
         .domain([lastNight, nightEnd, goldenHourEnd, goldenHour, night, nextNightEnd])
         .range(['black', 'black', '#39D08F','#39D08F','black', 'black'])
 
         ground.attr('fill', groundScale(dateTime))
 
         //star color
-        var starsScale = d3.scaleTime()
+        var starsScale = d3.scaleTime<string, string>()
         .domain(starsDomain)
         .range(['black', 'white', 'black', 'black', 'white', 'black',])
 
