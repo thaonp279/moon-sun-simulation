@@ -1,3 +1,11 @@
+import * as d3 from "d3";
+export {
+    w, h, hG, yG, hS, radius, holes, starsCoord, alternateViewW, bigMoonX, bigMoonY, bigMoonR,
+    detailsX, detailsY, planetY, bigSunR, bigSunX, earthX, earthR, moonOrbitR, tinyMoonR, moonStartX,
+    moonStartY, lonelyManWH, earthPaths, skyGradient, bottomSky, topSky, sunGradient, innerSun,
+    outerSun, starsGradient, topStars, bottomStars, starsMask, visibleStars, moonMask, moonShadeRect,
+    moonShadeCirc, bigMoonMask, bigMoonShadeRect, bigMoonShadeCirc, planetMask, halfMoon, arrow
+}
 var defs = d3.select('#horizon').append('defs');
 
 //-------------------------------SHAPE DIMENSIONS---------------------------------------//
@@ -23,13 +31,14 @@ const radius = h/10, holes = [
 ]
 
 //stars
-var starsCoord = [];
+var starsCoordTemp = [];
 
-for (i=0; i< 200; i++) {
+for (var i=0; i< 200; i++) {
     let cx = Math.random() * w;
     let cy = Math.random() * h*0.8;
-    starsCoord.push({cx, cy})
+    starsCoordTemp.push({cx, cy})
 }
+const starsCoord = starsCoordTemp;
 
 //---moon-view
 //big moon dimension

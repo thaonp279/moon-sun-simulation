@@ -1,5 +1,10 @@
-
 import * as d3 from "d3";
+import * as SunCalc from "suncalc";
+import './style.css'
+import {moon, sun, ground, moonFraction, moonRiseTime, moonSetTime, fullMoonTime, newMoonTime, tinyMoonG, visLine, lonelyMan} from './shapes';
+import {hG, h, w, topSky, bottomSky, topStars, moonShadeCirc, radius, bigMoonShadeCirc, bigMoonR, 
+    bigMoonShadeRect, moonShadeRect, moonOrbitR, moonStartX, moonStartY} from './defs'
+const milsecPerDay = 24*60*60*1000;
 
 (async () => {
 
@@ -88,13 +93,11 @@ import * as d3 from "d3";
     //------------------------------------HORIZON FUNCTIONS--------------------------------------------//
     function displayTime(time: number): void {
         /** update time on screen */
-        if (!isNaN(time)) {
-            const dateTime = new Date(time);
-            const place = dateTime.toString().match(/\((.+)\)/);
-            (document.getElementById('time') as HTMLElement).textContent = dateTime.toLocaleTimeString();
-            (document.getElementById('date') as HTMLElement).textContent = dateTime.toDateString().split(' ').slice(1, 3).join(' ');
-            (document.getElementById('place') as HTMLElement).textContent = place? place[1]: '';
-        }
+        const dateTime = new Date(time);
+        const place = dateTime.toString().match(/\((.+)\)/);
+        (document.getElementById('time') as HTMLElement).textContent = dateTime.toLocaleTimeString();
+        (document.getElementById('date') as HTMLElement).textContent = dateTime.toDateString().split(' ').slice(1, 3).join(' ');
+        (document.getElementById('place') as HTMLElement).textContent = place? place[1]: '';
     }
     function animateSunMoon(time: number): void {
         /** simulate sun moon across screen */
@@ -110,7 +113,7 @@ import * as d3 from "d3";
     }
 
     
-    function getPosition(now: number, object: 'moon'|'sun'): [number, number] {
+    function getPosition(now: number, object: 'moon'|'sun'): {x: number, y: number} {
         /*
         if (isNaN(now)) {
             now = Date.parse(now);
@@ -124,7 +127,7 @@ import * as d3 from "d3";
         const minor = h - paddingY, major = (w - 2*paddingX)/2;
 
         //calculate radian
-        const start = phases[0].time, end = phases[2].time;
+        const start = phases[0].time.getTime(), end = phases[1].time.getTime();
         var radian = Math.PI * (now - start)/(end - start);
         //move object below horizon after sunset/moonset, invert by adding 1 pi
         if (phases[0].type === 'set') radian += Math.PI;
@@ -133,24 +136,27 @@ import * as d3 from "d3";
         var x = paddingX + major - major * Math.cos(radian);
         var y = paddingY + minor - minor * Math.sin(radian);
 
-        return [x, y]
+        return {x, y}
     }
 
-    interface 
+    interface RiseSetTime {
+        time: Date;
+        type: 'now' | 'rise' | 'set';
+    }
 
-    function findRiseSetPhase(now: number, object: 'moon'|'sun') {
-        var data = [{time: new Date(now), type: 'now'}];
+    function findRiseSetPhase(now: number, object: 'moon'|'sun'): RiseSetTime[] {
+        var data: RiseSetTime[] = [{time: new Date(now), type: 'now'}];
         //SunCalc provides rise, set time in the current date. 
         //This finds rise, set time for current rise-set phase (possibly a day before or after)
+        
         for (let i=-1; i<=1; i++) {
-            let t = now+i*24*60*60*1000;
+            let t = new Date(now + i * milsecPerDay);
             
-            let rise, set;
+            let rise: Date, set: Date;
             if (object === 'moon') {
                 rise = SunCalc.getMoonTimes(t, lat, lng).rise;
                 set = SunCalc.getMoonTimes(t, lat, lng).set;
-
-            } else if (object === 'sun') {
+            } else {
                 rise = SunCalc.getTimes(t, lat, lng).sunrise;
                 set = SunCalc.getTimes(t, lat, lng).sunset;
             }
@@ -159,38 +165,40 @@ import * as d3 from "d3";
         }
 
         //locate 2 phases before and after current time
-        data.sort((a, b) => a.time - b.time);
-        var phases = [];
-        data.forEach((d, i, arr) => {
-            if (d.type === 'now') {
-                phases.push(arr[i-1]);
-                phases.push(d);
-                phases.push(arr[i+1])
+        data.sort((a, b) => a.time.getTime() - b.time.getTime());
+        var phases: RiseSetTime[] = [];
+
+        for (let i = 0; i<= data.length; i++) {
+            if (data[i].type == 'now') {
+                phases.push(data[i-1]);
+                phases.push(data[i+1]);
+                break;
             }
-        });
+        }
         
-        return phases
+        return phases;
     }
 
     //---update color of horizon depending on time
-    function colorHorizon(time){
-        if (!isNaN(time)) {
-            time = new Date(time);
-        }
+    function colorHorizon(time: number): void {
+        let dateTime = new Date(time);
         //yesterday
-        var yesterday = Date.parse(time) - 24*60*60*1000;
-        var lastNight = SunCalc.getTimes(new Date(yesterday), lat, lng).night;
+        var yesterday = dateTime.getTime() - milsecPerDay;
+        var lastNight = SunCalc.getTimes(new Date(yesterday), lat, lng).night.getTime();
         
         //today
-        var {nightEnd, sunrise, goldenHourEnd, solarNoon, goldenHour, sunset, night} = SunCalc.getTimes(time, lat, lng);
+        var times = SunCalc.getTimes(dateTime, lat, lng);
+        var timesNum: {[index: string]: number} = {};
+        (Object.keys(times) as Array<keyof SunCalc.GetTimesResult>).forEach(t => timesNum[t.toString()] = times[t].getTime()); // convert to time ms
+        var {nightEnd, sunrise, goldenHourEnd, solarNoon, goldenHour, sunset, night} = timesNum;
 
         //tomorrow
-        var tomorrow = Date.parse(time) + 24*60*60*1000;
-        var nextNightEnd = SunCalc.getTimes(new Date(tomorrow), lat, lng).nightEnd;
+        var tomorrow = dateTime.getTime() + milsecPerDay;
+        var nextNightEnd = SunCalc.getTimes(new Date(tomorrow), lat, lng).nightEnd.getTime();
 
         //midnights
-        var lastMidNight = new Date((nightEnd - lastNight) / 2 + Date.parse(lastNight));
-        var midnight = new Date((nextNightEnd - night) / 2 + Date.parse(night));
+        var lastMidNight = new Date((nightEnd - lastNight) / 2 + lastNight);
+        var midnight = new Date((nextNightEnd - night) / 2 + night);
 
         //domains for scales
         var horizonDomain = [lastNight, nightEnd, sunrise, goldenHourEnd, solarNoon, goldenHour, sunset, night, nextNightEnd];
@@ -206,17 +214,17 @@ import * as d3 from "d3";
         .range(["black", "black", "#ad3307", "#3662dd", "#3662dd", "#3662dd", "#ad3307", "black", "black"])
 
         topSky
-        .style('stop-color', topScale(time));
+        .style('stop-color', topScale(dateTime));
 
         bottomSky
-        .style('stop-color', bottomScale(time));
+        .style('stop-color', bottomScale(dateTime));
 
         //ground color
         var groundScale = d3.scaleTime()
         .domain([lastNight, nightEnd, goldenHourEnd, goldenHour, night, nextNightEnd])
         .range(['black', 'black', '#39D08F','#39D08F','black', 'black'])
 
-        ground.attr('fill', groundScale(time))
+        ground.attr('fill', groundScale(dateTime))
 
         //star color
         var starsScale = d3.scaleTime()
@@ -224,18 +232,18 @@ import * as d3 from "d3";
         .range(['black', 'white', 'black', 'black', 'white', 'black',])
 
         topStars
-        .style('stop-color', starsScale(time))
+        .style('stop-color', starsScale(dateTime))
     }
 
     //---update moon shape
-    function updateMoonShadow(time) {
+    function updateMoonShadow(time: number): void{
         //moon phase
-        var f = SunCalc.getMoonIllumination(time).phase;
+        const f = SunCalc.getMoonIllumination(new Date(time)).phase;
         //moon shade mask radius
-        var shadeRScale = 2;
-        var shadeRPct = shadeRScale/4 * (Math.sin((4 * f - 0.5) * Math.PI) + 3);
+        const shadeRScale = 2;
+        const shadeRPct = shadeRScale/4 * (Math.sin((4 * f - 0.5) * Math.PI) + 3);
         //moon shade mask location in % of radius
-        var shadeXPct = f < 0.25 || f > 0.5 && f < 0.75
+        const shadeXPct = f < 0.25 || f > 0.5 && f < 0.75
             ? 0.5 * (Math.sin((4 * f + 0.5) * Math.PI) - 1)
             : 0.5 * (Math.sin((4 * f - 0.5) * Math.PI) + 1)
         
@@ -273,26 +281,29 @@ import * as d3 from "d3";
 
     //------------------------------------BIG MOON FUNCTIONS--------------------------------------------//
     //---update details about moon fraction, rise, set, full, new moon
-    function updateMoonDetails(time) {
+    function updateMoonDetails(time: number): void {
         //fraction, rise, set
-        var fraction = Math.round(SunCalc.getMoonIllumination(time).fraction *100);
-        var moonTime = SunCalc.getMoonTimes(time, lat, lng);
+        var fraction = Math.round(SunCalc.getMoonIllumination(new Date(time)).fraction *100);
+        var moonTime = SunCalc.getMoonTimes(new Date(time), lat, lng);
 
         var timeRegex = /(\d+\:\d+):\d+/
+        var timeRiseString = moonTime.rise.toTimeString().match(timeRegex);
+        var timeSetString = moonTime.set.toTimeString().match(timeRegex);
         moonFraction
             .text('Moon: '+ fraction +'%')
 
         moonRiseTime
-            .text(moonTime.rise === undefined? 'no rise today': moonTime.rise.toTimeString().match(timeRegex).slice(1).join(' '))
+            .text(moonTime.rise && timeRiseString? timeRiseString.slice(1).join(' '): 'no rise today')
 
         moonSetTime
-            .text(moonTime.set === undefined? 'no set today': moonTime.set.toTimeString().match(timeRegex).slice(1).join(' '))
+            .text(moonTime.set && timeSetString? timeSetString.slice(1).join(' '): 'no set today')
 
         //dates of next new, full moon
-        var t = Date.parse(new Date(new Date(time).setHours(0,0,0,0))), fractions = [];
-        for (let i = 0; i<31; i++) {
-            t += 24*60*60*1000;
-            let f = SunCalc.getMoonIllumination(t).fraction;
+        var t = new Date(new Date(time).setHours(0,0,0,0)).getTime(), fractions = [];
+        const maxMoonDays = 31;
+        for (let i = 0; i < maxMoonDays; i++) {
+            t += milsecPerDay;
+            let f = SunCalc.getMoonIllumination(new Date(t)).fraction;
             fractions.push({f, t});
         }
         var nextFullMoon = new Date(fractions.reduce((a, b) => a.f> b.f? a: b).t);
@@ -309,8 +320,8 @@ import * as d3 from "d3";
     
 
     
-    function moonOrbit(time) {
-        var phase = SunCalc.getMoonIllumination(time).phase;
+    function moonOrbit(time: number): void {
+        var phase = SunCalc.getMoonIllumination( new Date(time)).phase;
         var radian = (phase - 0.0155)/(0.9844 - 0.0155) * 2 * Math.PI;
 
         var x = moonOrbitR - moonOrbitR * Math.cos(radian) + moonStartX;
@@ -325,14 +336,18 @@ import * as d3 from "d3";
             .attr('transform', 'rotate('+angle+')')  
     }
 
-    function lonelyManOrbit(time) {
-        var date = new Date(time);
-        var sec = date.getHours() * 60 * 60 + date.getMinutes() * 60 + date.getSeconds();
+    function lonelyManOrbit(time: number): void {
+        const timeInSec = time / 1000;
+        const secPerDay = 24 * 60 * 60;
+        const startAngle = 90;
+        const endAngle = 450;
         
-        var scale = d3.scaleTime().domain([0, 24 * 60 * 60]).range([90, 450]);
+        var scale = d3.scaleTime()
+            .domain([0, secPerDay])
+            .range([startAngle, endAngle]);
        
         lonelyMan
-            .attr('transform', 'rotate('+scale(sec)+')')
+            .attr('transform', 'rotate('+scale(timeInSec)+')')
     }
 
 

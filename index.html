@@ -4,10 +4,35 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + TS</title>
+    <title>Moon Sun</title>
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.ts"></script>
+    <div id='horizon-view'>
+      <svg id='horizon' ></svg>
+      <div id='time-place'>
+          <h1 id='time'></h1>
+          <h2 id='date'></h2>
+          <h3 id='place'></h2>
+      </div>
+      <button id ='real'>
+          <i class="fas fa-play fa-lg"></i>
+      </button>
+      <button id ='fast'>
+          <i class="fas fa-fast-forward fa-lg"></i>
+      </button>
+      <i class="fas fa-fast-forward fa-lg playing"></i>
+    </div>
+    <div id='alternate-view'>
+        <div>
+            <svg id='moon-view'></svg>
+            <i class="fas fa-fast-forward fa-lg playing"></i>
+        </div>
+        <div>
+            <svg id='planet-view'></svg>
+            <i class="fas fa-fast-forward fa-lg playing"></i>
+        </div>
+    </div>
+    <script type="module" src="/src/index.ts"></script>
+    <script src="https://kit.fontawesome.com/2e73c01fb6.js" crossorigin="anonymous"></script>
   </body>
 </html>

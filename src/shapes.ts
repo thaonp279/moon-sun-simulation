@@ -1,3 +1,13 @@
+import * as d3 from "d3";
+import {
+    w, h, hG, yG, hS, radius, holes, starsCoord, alternateViewW, bigMoonX, bigMoonY, bigMoonR,
+    detailsX, detailsY, planetY, bigSunR, bigSunX, earthX, earthR, moonOrbitR, tinyMoonR, lonelyManWH
+} from "./defs"
+export {
+    horizon, moon, sun, stars, ground, moonView, bigMoon, moonFraction, moonDates, detailsMargin, 
+    moonSet, moonSetTime, moonRise, moonRiseTime, fullMoon, fullMoonTime, newMoon, newMoonTime,
+    planetView, orbit, earthG, earth, lonelyMan, tinyMoonG, tinyMoon, visLine
+}
 //-------------------------------HORIZON VIEW---------------------------------------//
 
 //horizon
@@ -217,7 +227,7 @@ earth
 //icon from freepik
 var lonelyMan = earthG
 .append('image')
-.attr('href', 'dancing.svg')
+.attr('href', '/src/assets/dancing.svg')
 .attr('width', lonelyManWH)
 .attr('height', lonelyManWH)
 .attr('x', -lonelyManWH/2)
